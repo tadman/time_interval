@@ -1,17 +1,35 @@
 = time_interval
 
-Description goes here.
+This is a method for dividing up time into differing units of scale, either
+a constant factor such as binary or a more arbitrary arrangement. This is
+useful for many things, such as indexing a series of linear events and
+being able to group them by different levels of temporal granularity.
 
-== Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+Due to the implementation, the limit on dates supported is:
+
+    1970-01-01 00:00:00 UTC - 2038-01-19 03:14:07 UTC
+
+Standard UNIX time is represented by the number of seconds since epoch, that
+being the start of January 1, 1970. Positive values indicate points in time
+after this, and negative values indicate prior to it. This is called a
+time_t type offset, based on the UNIX time_t data type.
+
+TimeInterval is stored as an unsigned 32-bit number by appropriating the
+bit usually reserved for indicating a negative value and using it to encode
+how large or small the interval defined is.
+
+== Example
+
+    # Defaults to the current time
+    interval = TimeInterval.new
+    
+    # Convert to a time grouped by 1<<16 seconds
+    encoded = interval.to_i(16)
+
+    # Decode this time back into a regular time_t offset, but this will
+    # be rounded to 1<<16 second granularity.
+    decoded = TimeInterval.new(encoded)
 
 == Copyright
 
-Copyright (c) 2010 tadman. See LICENSE for details.
+Copyright (c) 2010 Scott Tadman, The Working Group
