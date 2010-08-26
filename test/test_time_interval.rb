@@ -20,6 +20,13 @@ class TestTimeInterval < Test::Unit::TestCase
     )
     
     assert_equal 5, interval_type.scale.length
+
+    assert_equal 1, interval_type.size
+    assert_equal 1, interval_type.size(:second)
+    assert_equal 60, interval_type.size(:minute)
+    assert_equal 60 * 60, interval_type.size(:hour)
+    assert_equal 24 * 60 * 60, interval_type.size(:day)
+    assert_equal 7 * 24 * 60 * 60, interval_type.size(:week)
     
     # Construct a series of expectations by multiplying out into the
     # required numbre of seconds.

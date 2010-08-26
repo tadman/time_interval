@@ -87,16 +87,26 @@ class TimeInterval
   def self.scale_name
     DEFAULT_SCALE_NAME
   end
+
+  def self.size(at_scale = nil)
+    scale_details = scale[at_scale || scale_name[0]]
+    
+    scale_details and scale_details[1]
+  end
+
+  def self.now
+    new(nil)
+  end
   
   # == Instance Methods =====================================================
 
   def initialize(value = nil)
-    @time = self.class.interval_to_i(value || Time.now)
+    @time = self.class.interval_to_i(value || Time.now.utc)
   end
   
   def to_i(at_scale = nil)
     case (at_scale)
-    when nil, 0
+    when nil
       @time
     else
       scale_details = self.class.scale[at_scale]
