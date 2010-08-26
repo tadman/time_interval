@@ -1,9 +1,9 @@
 class TimeInterval
   # == Constants ============================================================
   
-  MASK = (0..30).to_a.collect { |i| (1 << 31) - (1 << (30 - i)) }.freeze
+  MASK = (0..30).to_a.collect { |i| (1 << 31) - (1 << (31 - i)) }.freeze
 
-  DEFAULT_SCALE = (0..30).to_a.collect { |i| [ i, MASK[i] ] }.freeze
+  DEFAULT_SCALE = (0..30).to_a.collect { |i| [ MASK[i], 2 ** i ] }.freeze
   DEFAULT_SCALE_NAME = (0..30).to_a.freeze
   
   # == Class Methods ========================================================
@@ -21,13 +21,18 @@ class TimeInterval
       
       scale_defn = { }
       scale_factor = 1
+      mask_offset = 0
 
       definition.each_with_index do |element, i|
         case (i % 2)
         when 0
           scale_factor *= element
         when 1
-          scale_defn[element] = [ MASK[scale_defn.length], scale_factor ]
+          unless (scale_factor == 1)
+            mask_offset += 1
+          end
+
+          scale_defn[element] = [ MASK[mask_offset], scale_factor ]
           scale_name_defn << element
         end
       end
@@ -111,7 +116,11 @@ class TimeInterval
     else
       scale_details = self.class.scale[at_scale]
       
-      -(scale_details[0] | (@time / scale_details[1]))
+      if (scale_details[1] == 1)
+        @time
+      else
+        -(scale_details[0] | (@time / scale_details[1]))
+      end
     end
   end
 end

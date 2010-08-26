@@ -9,6 +9,12 @@ class TestTimeInterval < Test::Unit::TestCase
     interval = TimeInterval.new
     
     assert_equal interval.to_i, Time.now.to_i
+    
+    assert_equal interval.to_i, interval.to_i(0)
+    assert_equal -(TimeInterval::MASK[1] | interval.to_i / 2), interval.to_i(1)
+    assert_equal -(TimeInterval::MASK[2] | interval.to_i / 4), interval.to_i(2)
+    assert_equal -(TimeInterval::MASK[3] | interval.to_i / 8), interval.to_i(3)
+    assert_equal -(TimeInterval::MASK[4] | interval.to_i / 16), interval.to_i(4)
   end
 
   def test_custom_interval
@@ -47,7 +53,12 @@ class TestTimeInterval < Test::Unit::TestCase
     
     # Different interval slices can be obtained by passing in the name from
     # the definition.
-    assert_equal -(TimeInterval::MASK[0] | seconds), interval.to_i(:second)
+
+    # A 1:1 scaling does not have a mask and is simply represented as-is
+    assert_equal seconds, interval.to_i(:second)
+    
+    # All other scaling factors have a reduction, so they need to be masked
+    # to indicate which scale level is used.
     assert_equal -(TimeInterval::MASK[1] | minutes), interval.to_i(:minute)
     assert_equal -(TimeInterval::MASK[2] | hours), interval.to_i(:hour)
     assert_equal -(TimeInterval::MASK[3] | days), interval.to_i(:day)
